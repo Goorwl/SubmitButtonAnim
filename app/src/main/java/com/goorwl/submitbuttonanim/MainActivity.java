@@ -3,6 +3,7 @@ package com.goorwl.submitbuttonanim;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
+import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -13,5 +14,16 @@ public class MainActivity extends AppCompatActivity {
 
         SubmitButtonView buttonView = findViewById(R.id.btn_submit);
 
+        buttonView.setOnViewClickListener(new SubmitButtonView.OnViewClickListener() {
+            @Override
+            public void animStart() {
+                Toast.makeText(MainActivity.this, "点击了控件", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void animEnd() {
+
+            }
+        });
     }
 }

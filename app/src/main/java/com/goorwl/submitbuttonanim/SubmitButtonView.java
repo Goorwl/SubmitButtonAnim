@@ -14,6 +14,12 @@ import androidx.annotation.Nullable;
 public class SubmitButtonView extends View {
     private static final String TAG = "SubmitButtonView";
 
+    private OnViewClickListener mOnViewClickListener;
+
+    public void setOnViewClickListener(OnViewClickListener onViewClickListener) {
+        mOnViewClickListener = onViewClickListener;
+    }
+
     // 当前控件限定的长方形区域
     private RectF mRectF = new RectF();
 
@@ -36,8 +42,21 @@ public class SubmitButtonView extends View {
 
     public SubmitButtonView(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-
+        this.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (mOnViewClickListener != null) {
+                    mOnViewClickListener.animStart();
+                }
+            }
+        });
         initPaint();
+    }
+
+    public interface OnViewClickListener {
+        void animStart();
+
+        void animEnd();
     }
 
     // 初始化画笔
@@ -70,10 +89,6 @@ public class SubmitButtonView extends View {
     // 绘制文字
     private void drawText(Canvas canvas) {
         Paint.FontMetricsInt fontMetricsInt = textPaint.getFontMetricsInt();
-        Log.e(TAG, "drawText1: " + mRectF.bottom);
-        Log.e(TAG, "drawText2: " + mRectF.top);
-        Log.e(TAG, "drawText3: " + fontMetricsInt.bottom);
-        Log.e(TAG, "drawText4: " + fontMetricsInt.top);
         canvas.drawText(textShow, mRectF.centerX(), (mRectF.bottom - mRectF.top - fontMetricsInt.bottom - fontMetricsInt.top) / 2, textPaint);
     }
 
