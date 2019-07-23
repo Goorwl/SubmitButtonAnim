@@ -1,5 +1,7 @@
 package com.goorwl.submitbuttonanim;
 
+import android.animation.Animator;
+import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
 import android.content.Context;
 import android.graphics.Canvas;
@@ -31,9 +33,11 @@ public class SubmitButtonView extends View {
     private Paint okPaint;
 
     // 动画持续时间
-    private int duration = 1000;
+    private int   duration     = 1000;
     // 保存初始宽度
-    private int viewWidth;
+    private int   viewWidth;
+    // 上移距离
+    private float moveDistance = 150f;
 
     // 圆角角度
     private float roundRadius = 0;
@@ -114,9 +118,9 @@ public class SubmitButtonView extends View {
         mRectF.right = w;
     }
 
-    // 开始绘制动画
+    // 开始绘制动画，文字透明度消失
     public void rectToOval() {
-        float         vRate         = mRectF.centerX() - mRectF.centerY();
+        final float   vRate         = mRectF.centerX() - mRectF.centerY();
         ValueAnimator valueAnimator = ValueAnimator.ofFloat(vRate);
         valueAnimator.setDuration(duration);
         valueAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
@@ -127,10 +131,66 @@ public class SubmitButtonView extends View {
                 mRectF.left = value;
                 roundRadius = value;
                 mRectF.right = viewWidth - value;
+                Float textAlpha = 255 - value / vRate * 255;
+                textPaint.setAlpha(textAlpha.intValue());
                 invalidate();
             }
         });
+        valueAnimator.addListener(new Animator.AnimatorListener() {
+            @Override
+            public void onAnimationStart(Animator animation) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                moveUp();
+            }
+
+            @Override
+            public void onAnimationCancel(Animator animation) {
+
+            }
+
+            @Override
+            public void onAnimationRepeat(Animator animation) {
+
+            }
+        });
         valueAnimator.start();
+    }
+
+    // 控件上移
+    private void moveUp() {
+        float tY = getTranslationY(); // 当前控件在布局的位置
+        ObjectAnimator translationY = ObjectAnimator.ofFloat(this, "translationY", tY, tY - moveDistance);
+        translationY.setDuration(duration);
+        translationY.addListener(new Animator.AnimatorListener() {
+            @Override
+            public void onAnimationStart(Animator animation) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                drawOk();
+            }
+
+            @Override
+            public void onAnimationCancel(Animator animation) {
+
+            }
+
+            @Override
+            public void onAnimationRepeat(Animator animation) {
+
+            }
+        });
+        translationY.start();
+    }
+
+    // 开始画对勾
+    private void drawOk() {
     }
 
 }
