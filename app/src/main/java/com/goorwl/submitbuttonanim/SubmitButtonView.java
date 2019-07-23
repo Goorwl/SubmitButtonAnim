@@ -1,5 +1,6 @@
 package com.goorwl.submitbuttonanim;
 
+import android.animation.ValueAnimator;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -28,6 +29,14 @@ public class SubmitButtonView extends View {
     private Paint bgPaint;
     private Paint textPaint;
     private Paint okPaint;
+
+    // 动画持续时间
+    private int duration = 1000;
+    // 保存初始宽度
+    private int viewWidth;
+
+    // 圆角角度
+    private float roundRadius = 0;
 
     // 按钮文字
     private String textShow = "点击完成";
@@ -94,14 +103,34 @@ public class SubmitButtonView extends View {
 
     // 绘制背景
     private void drawBg(Canvas canvas) {
-        canvas.drawRect(mRectF, bgPaint);
+        canvas.drawRoundRect(mRectF, roundRadius, roundRadius, bgPaint);
     }
 
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
+        viewWidth = w;
         mRectF.bottom = h;
         mRectF.right = w;
+    }
+
+    // 开始绘制动画
+    public void rectToOval() {
+        float         vRate         = mRectF.centerX() - mRectF.centerY();
+        ValueAnimator valueAnimator = ValueAnimator.ofFloat(vRate);
+        valueAnimator.setDuration(duration);
+        valueAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator animation) {
+                float value = (float) animation.getAnimatedValue();
+                Log.e(TAG, "onAnimationUpdate: " + value);
+                mRectF.left = value;
+                roundRadius = value;
+                mRectF.right = viewWidth - value;
+                invalidate();
+            }
+        });
+        valueAnimator.start();
     }
 
 }

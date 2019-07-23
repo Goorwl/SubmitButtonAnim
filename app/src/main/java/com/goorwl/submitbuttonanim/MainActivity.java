@@ -12,12 +12,13 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        SubmitButtonView buttonView = findViewById(R.id.btn_submit);
+        final SubmitButtonView buttonView = findViewById(R.id.btn_submit);
 
         buttonView.setOnViewClickListener(new SubmitButtonView.OnViewClickListener() {
             @Override
             public void animStart() {
                 Toast.makeText(MainActivity.this, "点击了控件", Toast.LENGTH_SHORT).show();
+                buttonView.rectToOval();
             }
 
             @Override
