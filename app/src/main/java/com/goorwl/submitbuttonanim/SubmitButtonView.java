@@ -6,7 +6,10 @@ import android.animation.ValueAnimator;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.DashPathEffect;
 import android.graphics.Paint;
+import android.graphics.Path;
+import android.graphics.PathMeasure;
 import android.graphics.RectF;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -18,6 +21,7 @@ public class SubmitButtonView extends View {
     private static final String TAG = "SubmitButtonView";
 
     private OnViewClickListener mOnViewClickListener;
+    private PathMeasure         mPathMeasure;
 
     public void setOnViewClickListener(OnViewClickListener onViewClickListener) {
         mOnViewClickListener = onViewClickListener;
@@ -33,14 +37,18 @@ public class SubmitButtonView extends View {
     private Paint okPaint;
 
     // 动画持续时间
-    private int   duration     = 1000;
+    private int     duration     = 1000;
     // 保存初始宽度
-    private int   viewWidth;
+    private int     viewWidth;
+    private int     viewHeight;
     // 上移距离
-    private float moveDistance = 150f;
-
+    private float   moveDistance = 150f;
     // 圆角角度
-    private float roundRadius = 0;
+    private float   roundRadius  = 0;
+    // 是否开始绘制ok
+    private boolean isDrawOk     = false;
+    // ok路径
+    private Path    okPath       = new Path();
 
     // 按钮文字
     private String textShow = "点击完成";
@@ -97,6 +105,9 @@ public class SubmitButtonView extends View {
         super.onDraw(canvas);
         drawBg(canvas);
         drawText(canvas);
+        if (isDrawOk) {
+            canvas.drawPath(okPath, okPaint);
+        }
     }
 
     // 绘制文字
@@ -114,6 +125,7 @@ public class SubmitButtonView extends View {
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
         viewWidth = w;
+        viewHeight = h;
         mRectF.bottom = h;
         mRectF.right = w;
     }
@@ -162,7 +174,7 @@ public class SubmitButtonView extends View {
 
     // 控件上移
     private void moveUp() {
-        float tY = getTranslationY(); // 当前控件在布局的位置
+        float          tY           = getTranslationY(); // 当前控件在布局的位置
         ObjectAnimator translationY = ObjectAnimator.ofFloat(this, "translationY", tY, tY - moveDistance);
         translationY.setDuration(duration);
         translationY.addListener(new Animator.AnimatorListener() {
@@ -173,7 +185,7 @@ public class SubmitButtonView extends View {
 
             @Override
             public void onAnimationEnd(Animator animation) {
-                drawOk();
+                initOk();
             }
 
             @Override
@@ -190,7 +202,27 @@ public class SubmitButtonView extends View {
     }
 
     // 开始画对勾
-    private void drawOk() {
+    private void initOk() {
+        float okStart = mRectF.centerX() - mRectF.centerY();
+        okPath.moveTo(okStart + viewHeight / 8 * 3, viewHeight / 2);
+        okPath.lineTo(okStart + viewHeight / 2, viewHeight / 5 * 3);
+        okPath.lineTo(okStart + viewHeight / 3 * 2, viewHeight / 5 * 2);
+
+        mPathMeasure = new PathMeasure(okPath, true);
+
+        ValueAnimator valueAnimator = ValueAnimator.ofFloat(1, 0);
+        valueAnimator.setDuration(duration);
+        valueAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator animation) {
+                isDrawOk = true;
+                float          value          = (float) animation.getAnimatedValue();
+                DashPathEffect dashPathEffect = new DashPathEffect(new float[]{mPathMeasure.getLength(), mPathMeasure.getLength()}, value * mPathMeasure.getLength());
+                okPaint.setPathEffect(dashPathEffect);
+                invalidate();
+            }
+        });
+        valueAnimator.start();
     }
 
 }
