@@ -18,7 +18,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void animStart() {
                 Toast.makeText(MainActivity.this, "点击了控件", Toast.LENGTH_SHORT).show();
-                buttonView.rectToOval();
+                buttonView.startAnim();
             }
 
             @Override
